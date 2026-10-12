@@ -1,5 +1,11 @@
 # Visual Asset Hub
 
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/wilson1411/visual-asset-hub)
+
+**線上 Demo（免安裝）**：https://wilson1411-visual-asset-hub.hf.space
+
+每位訪客有自己的素材庫（已放入 10 張示範照片），閒置 60 分鐘後自動刪除。一段時間沒人使用時 Demo 會休眠，第一次開啟可能要等 1–2 分鐘。
+
 > Capture once. Reuse everywhere. 設計與規格見 [CLAUDE.md](CLAUDE.md)、[docs/SPEC.md](docs/SPEC.md)。
 >
 > **使用者文件**：網頁操作 → [docs/USER_GUIDE.md](docs/USER_GUIDE.md)；在新電腦安裝與啟動 → [docs/SETUP_NEW_PC.md](docs/SETUP_NEW_PC.md)
