@@ -5,6 +5,7 @@ import ReviewPage from "./pages/ReviewPage";
 import LibraryPage from "./pages/LibraryPage";
 import SearchPage from "./pages/SearchPage";
 import DesignsPage from "./pages/DesignsPage";
+import { DemoBadge } from "./components/DemoNotice";
 
 // Konva is large; load the canvas editor (and Konva) only when it is opened.
 const EditorPage = lazy(() => import("./pages/EditorPage"));
@@ -22,6 +23,7 @@ export default function App() {
           <NavLink to="/search">搜尋</NavLink>
           <NavLink to="/designs">設計</NavLink>
         </nav>
+        <DemoBadge />
       </header>
       <Routes>
         {/* the canvas editor uses the full window; every other page sits in the centred column */}

@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT_DIR / "models"
-DATA_DIR = ROOT_DIR / "data"
+DATA_DIR = Path(os.environ.get("VAH_DATA_DIR", ROOT_DIR / "data"))
 OUTPUTS_DIR = ROOT_DIR / "outputs"
 DB_FILENAME = "vah.db"
 
@@ -72,6 +72,26 @@ CANVAS_PRESETS = {
 BACKEND = os.environ.get("VAH_BACKEND", "onnx")
 # Execution device for the ONNX backend: "auto" (CUDA if usable, else CPU), "cuda", or "cpu".
 DEVICE = os.environ.get("VAH_DEVICE", "auto")
+
+
+@dataclass(frozen=True)
+class DemoConfig:
+    # Online demo (VAH_DEMO=1, backend/api/demo.py): every visitor works on a private copy of the
+    # library in DATA_DIR (the seed), deleted after idle_minutes without requests.
+    enabled: bool = os.environ.get("VAH_DEMO") == "1"
+    sessions_dir: Path = Path(os.environ.get("VAH_SESSIONS_DIR", ROOT_DIR / "sessions"))
+    idle_minutes: int = 60
+    max_sessions: int = 40
+    # When full, the least recently used session idle at least this long makes room.
+    evict_idle_minutes: int = 5
+    max_uploads: int = 10            # photos one visitor may add to the seed library
+    max_upload_mb: int = 20
+    new_sessions_per_ip: int = 30    # per 10 minutes; one browser keeps one session
+    # AGPL-3.0: users of the hosted demo can get the source here.
+    source_url: str = os.environ.get("VAH_SOURCE_URL", "https://github.com/wilsonlin1411/visual-asset-hub")
+
+
+DEMO = DemoConfig()
 
 
 @dataclass(frozen=True)

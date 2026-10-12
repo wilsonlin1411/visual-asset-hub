@@ -133,14 +133,61 @@ export interface ExportRecord {
   url: string;
 }
 
+export interface DemoInfo {
+  enabled: boolean;
+  seed_photos: number | null;
+  idle_minutes: number | null;
+  max_uploads: number | null;
+  source_url: string | null;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }
 }
 
+// Online demo (backend/api/demo.py): the server keeps a private copy of the demo library per
+// session id. Every API call carries this browser's id; outside the demo it is ignored.
+const SESSION_KEY = "vah-session";
+const SESSION = loadSessionId();
+
+function loadSessionId(): string {
+  try {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (saved && /^[0-9a-f]{32}$/.test(saved)) return saved;
+  } catch {
+    /* storage blocked (some embedded pages): the id lasts for this page */
+  }
+  const id = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    localStorage.setItem(SESSION_KEY, id);
+  } catch {
+    /* as above */
+  }
+  return id;
+}
+
+/** API URL the browser loads by itself (<img>, downloads, canvas): it cannot send headers. */
+export const withSession = (url: string) => `${url}${url.includes("?") ? "&" : "?"}s=${SESSION}`;
+
+/** Adds the session id to every API URL in a response (`url` / `*_url` fields), in place. */
+export function tagUrls(value: unknown): void {
+  if (Array.isArray(value)) {
+    value.forEach(tagUrls);
+  } else if (value !== null && typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "string" && k.endsWith("url") && v.startsWith("/api/")) obj[k] = withSession(v);
+      else tagUrls(v);
+    }
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, init);
+  const headers = new Headers(init?.headers);
+  headers.set("X-VAH-Session", SESSION);
+  const res = await fetch(path, { ...init, headers });
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -151,7 +198,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(res.status, detail);
   }
-  return res.json() as Promise<T>;
+  const data = await res.json();
+  tagUrls(data);
+  return data as T;
 }
 
 const json = (method: string, body: unknown): RequestInit => ({
@@ -195,6 +244,7 @@ export const api = {
   search: (q: string, includePeople: boolean) =>
     request<SearchResult>(`/api/search${qs({ q, k: 30, include_people: includePeople })}`),
   vocabulary: () => request<Vocabulary>("/api/vocabulary"),
+  demo: () => request<DemoInfo>("/api/demo"),
 
   presets: () => request<Preset[]>("/api/presets"),
   designs: () => request<DesignSummary[]>("/api/designs"),
@@ -213,4 +263,4 @@ export const api = {
 };
 
 /** Canvas source for an asset: cut-out capped at 2048 px (enough for every preset). */
-export const mediumUrl = (assetId: number) => `/api/assets/${assetId}/medium`;
+export const mediumUrl = (assetId: number) => withSession(`/api/assets/${assetId}/medium`);

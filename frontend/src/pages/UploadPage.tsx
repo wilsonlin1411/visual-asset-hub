@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api, type Photo } from "../api";
+import { DemoNotice } from "../components/DemoNotice";
 
 function StatusBadge({ p }: { p: Photo }) {
   if (p.status === "processing")
@@ -60,6 +61,7 @@ export default function UploadPage() {
         <h1>上傳照片</h1>
         <span className="muted">上傳後會在背景自動分割、判斷類別與情境，完成後即可確認候選物件。</span>
       </div>
+      <DemoNotice />
 
       <div
         className={`dropzone${over ? " over" : ""}`}

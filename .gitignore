@@ -2,6 +2,7 @@
 .venv-export/
 models/
 data/
+sessions/
 outputs/
 frontend/node_modules/
 frontend/dist/

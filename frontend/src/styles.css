@@ -40,10 +40,12 @@ h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
 .nav { display: flex; gap: 4px; }
 .nav a { padding: 6px 12px; border-radius: 8px; color: var(--text); white-space: nowrap; }
 .brand { white-space: nowrap; }
+.demo-badge { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; white-space: nowrap; }
 @media (max-width: 760px) {
   .topbar { gap: 8px; padding: 0 12px; }
   .brand small { display: none; }
   .nav a { padding: 6px 8px; }
+  .demo-badge a { display: none; }
 }
 .nav a:hover { background: var(--surface-2); text-decoration: none; }
 .nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
@@ -82,6 +84,7 @@ label.check { display: inline-flex; gap: 6px; align-items: center; color: var(--
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .muted { color: var(--muted); }
 .error { background: var(--danger-soft); color: var(--danger); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; }
+.notice { background: var(--warn-soft); border-left: 3px solid var(--warn); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.6; }
 .empty { color: var(--muted); padding: 40px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
 .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }

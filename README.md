@@ -127,6 +127,20 @@ cd frontend && conda run -n vah-web npm run dev      # http://localhost:5173（/
 
 畫面內容格式（scene JSON）定義在 `backend/services/designs.py`（Pydantic）與 `frontend/src/lib/scene.ts`。
 
+## 線上 Demo 模式（Hugging Face Space）
+
+`VAH_DEMO=1` 時 `python -m backend.api` 改用 `backend/api/demo.py`：每位訪客（瀏覽器）有一份自己的素材庫，
+由 `VAH_DATA_DIR`（示範素材庫）複製到 `VAH_SESSIONS_DIR/<id>/`，閒置 60 分鐘後刪除；模型與背景 worker 所有訪客共用。
+瀏覽器以隨機 id 識別（API 帶 `X-VAH-Session` header，圖片網址帶 `?s=`），不用 cookie，嵌在 iframe 裡也能用。
+上限（人數、每人上傳張數、檔案大小）在 `backend/config.py` 的 `DemoConfig`。
+
+```bash
+VAH_DEMO=1 VAH_DATA_DIR=demo-data conda run -n vah python -m backend.api   # 先用 library ingest + seed_library 建好 demo-data
+```
+
+部署：[deploy/hf-space/](deploy/hf-space/) 的 `Dockerfile` 與 `README.md` 上傳到 Docker Space 即可；建置時從 GitHub 的 tag
+下載程式、從 Release 下載模型，並用 `tests/images` 建好示範素材庫。
+
 ## 推論層結構
 
 ```
@@ -147,6 +161,7 @@ services/embedding.py              ClipImageEncoder（走影像 backend）、Tex
 services/vocab.py, tagging.py      詞彙表；zero-shot 類別、objectness、顏色、材質風格、情境規則與場景
 services/search.py                 中文查詢 → 詞彙比對 + 多語向量 → 重排序（附命中原因）
 services/queue.py, api/app.py      單一背景 worker；FastAPI
+api/demo.py                        線上 Demo：每位訪客一份素材庫，共用模型與 worker
 services/designs.py                設計稿 / 匯出（scene 驗證、尺寸檢查）
 services/thumbs.py                 縮圖：素材 512 WebP、畫布用 2048 PNG、照片 1600、候選 256
 frontend/src/lib/scene.ts          畫布編輯的純函式（版型、換尺寸、圖層、復原）

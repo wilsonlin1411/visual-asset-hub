@@ -18,6 +18,7 @@ All endpoints live under /api; when frontend/dist exists it is served at / (sing
     DELETE /api/assets/{id}
     GET    /api/search?q=
     GET    /api/vocabulary, /api/stats
+    GET    /api/demo                            online demo settings (backend/api/demo.py); disabled here
     GET    /api/assets/{id}/medium              cut-out, longer side 2048 (canvas)
     GET    /api/presets                         canvas sizes
     GET/POST /api/designs, GET/PUT/DELETE /api/designs/{id}, GET /api/designs/{id}/thumb
@@ -227,6 +228,14 @@ class VocabularyOut(BaseModel):
     excluded_categories: List[str]
 
 
+class DemoInfo(BaseModel):
+    enabled: bool
+    seed_photos: Optional[int] = None
+    idle_minutes: Optional[int] = None
+    max_uploads: Optional[int] = None
+    source_url: Optional[str] = None
+
+
 def tag_out(t) -> TagOut:
     if isinstance(t, Tag):
         return TagOut(kind=t.kind, value=t.value, score=t.score, source=t.source)
@@ -260,9 +269,12 @@ def candidate_order(c: CandidateRecord):
 # -------------------------------------------------------------------------------- app
 
 def create_app(library: Optional[AssetLibrary] = None, search_factory=None, start_worker: bool = True,
-               serve_frontend: bool = True) -> FastAPI:
+               serve_frontend: bool = True, worker=None, max_photos: Optional[int] = None,
+               max_upload_bytes: Optional[int] = None) -> FastAPI:
+    """`worker`, `max_photos` and `max_upload_bytes` are set by the online demo (one app per visitor)."""
     lib = library or AssetLibrary()
-    worker = PhotoQueue(lib)
+    own_worker = worker is None
+    worker = worker or PhotoQueue(lib)
     search_holder: dict = {}
     search_lock = threading.Lock()
 
@@ -283,7 +295,8 @@ def create_app(library: Optional[AssetLibrary] = None, search_factory=None, star
         if start_worker:
             worker.start()
         yield
-        worker.stop()
+        if own_worker:
+            worker.stop()
         if library is None:
             lib.close()
 
@@ -331,7 +344,11 @@ def create_app(library: Optional[AssetLibrary] = None, search_factory=None, star
 
     @api.post("/photos", response_model=UploadOut, status_code=202)
     def upload_photo(file: UploadFile = File(...)):
-        data = file.file.read()
+        data = file.file.read() if max_upload_bytes is None else file.file.read(max_upload_bytes + 1)
+        if max_upload_bytes is not None and len(data) > max_upload_bytes:
+            raise HTTPException(413, f"照片不能超過 {max_upload_bytes // 2**20} MB")
+        if max_photos is not None and repo.counts(lib.db)["photos"] >= max_photos:
+            raise HTTPException(429, "照片數量已達上限，請先刪除一些照片再上傳")
         try:
             photo, created = lib.register_photo(data, file.filename or "upload.jpg")
         except ValueError:
@@ -493,6 +510,10 @@ def create_app(library: Optional[AssetLibrary] = None, search_factory=None, star
         s["queue_current"] = worker.current
         return s
 
+    @api.get("/demo", response_model=DemoInfo)
+    def demo_info():
+        return DemoInfo(enabled=False)
+
     # ---- canvas designs and exports (stage 6)
 
     designs = DesignStore(lib.db, lib.data_dir)
@@ -593,18 +614,22 @@ def create_app(library: Optional[AssetLibrary] = None, search_factory=None, star
         return FileResponse(lib.thumbs.medium(a.id, lib.path(a.png_path)), media_type="image/png", headers=IMMUTABLE)
 
     app.include_router(api)
-
-    # ---- built frontend (single-port demo); unknown non-API paths fall back to index.html (SPA routes)
-    if serve_frontend and (FRONTEND_DIST / "index.html").is_file():
-        app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="frontend-assets")
-
-        @app.get("/{path:path}", include_in_schema=False)
-        def spa(path: str):
-            if path.startswith("api/"):
-                raise HTTPException(404)
-            file = (FRONTEND_DIST / path).resolve()
-            if path and file.is_file() and FRONTEND_DIST.resolve() in file.parents:
-                return FileResponse(file)
-            return FileResponse(FRONTEND_DIST / "index.html")
-
+    if serve_frontend:
+        mount_frontend(app)
     return app
+
+
+def mount_frontend(app: FastAPI) -> None:
+    """Built frontend (single-port demo); unknown non-API paths fall back to index.html (SPA routes)."""
+    if not (FRONTEND_DIST / "index.html").is_file():
+        return
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="frontend-assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        if path.startswith("api/"):
+            raise HTTPException(404)
+        file = (FRONTEND_DIST / path).resolve()
+        if path and file.is_file() and FRONTEND_DIST.resolve() in file.parents:
+            return FileResponse(file)
+        return FileResponse(FRONTEND_DIST / "index.html")

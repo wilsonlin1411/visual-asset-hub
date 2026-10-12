@@ -42,7 +42,7 @@ export default function DesignsPage() {
           <div key={d.id} className="card">
             <Link to={`/designs/${d.id}`} className="thumb" style={{ aspectRatio: "4 / 3", background: "var(--surface-2)" }}>
               {d.thumb_url
-                ? <img src={`${d.thumb_url}?v=${encodeURIComponent(d.updated_at)}`} alt={d.name} />
+                ? <img src={`${d.thumb_url}${d.thumb_url.includes("?") ? "&" : "?"}v=${encodeURIComponent(d.updated_at)}`} alt={d.name} />
                 : <div className="preset-shape" style={{ aspectRatio: `${d.width} / ${d.height}`, height: "70%" }} />}
             </Link>
             <div className="body">
