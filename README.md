@@ -13,6 +13,22 @@
 > **安裝**：模型（約 1.2 GB）與建置好的網頁不在 git 裡，請從 **Releases** 下載 `vah-models.zip`、`vah-frontend-dist.zip`，
 > 在專案根目錄用 `tar -xf` 解壓後即可啟動；完整步驟見 [docs/SETUP_NEW_PC.md](docs/SETUP_NEW_PC.md)。
 
+## 參賽資訊
+
+| 項目 | 內容 |
+|---|---|
+| 競賽 | ASUS UGen AI League 2026 · Innovation Hackathon · Stage I Proposal |
+| 組別 | Battlefield Lightning · Lightweight Computing（輕量運算組） |
+| 目標硬體 | ASUS UGen300 USB AI Accelerator（Hailo-10H） |
+| Stage I | Simulated and validated on a laptop（CPU only） |
+
+### 團隊成員
+
+| 成員 | GitHub |
+|---|---|
+| 林源隆（Wilson Lin） | [@wilsonlin1411](https://github.com/wilsonlin1411) |
+| 禤蔚灝（Asa Huen） | [@Asahuen](https://github.com/Asahuen) |
+
 ## 環境
 
 兩個 conda 環境，runtime 不依賴 torch / ultralytics：
