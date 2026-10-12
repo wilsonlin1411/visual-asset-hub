@@ -6,9 +6,11 @@
 
 每位訪客有自己的素材庫（已放入 10 張示範照片），閒置 60 分鐘後自動刪除。一段時間沒人使用時 Demo 會休眠，第一次開啟可能要等 1–2 分鐘。
 
+**平台介紹影片**（30 秒，英文字幕）
+
 https://github.com/user-attachments/assets/555b2160-de35-4add-a451-e288816db727
 
-<sub>30 秒平台介紹（英文字幕）。背景音樂："Easy Lemon" by Kevin MacLeod (incompetech.com)，CC BY 4.0</sub>
+<small>背景音樂："Easy Lemon" by Kevin MacLeod (incompetech.com)，授權 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)</small>
 
 > Capture once. Reuse everywhere. 設計與規格見 [CLAUDE.md](CLAUDE.md)、[docs/SPEC.md](docs/SPEC.md)。
 >
