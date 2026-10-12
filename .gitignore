@@ -1,0 +1,14 @@
+.venv/
+.venv-export/
+models/
+data/
+outputs/
+frontend/node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+/*.zip
+~$*
+Thumbs.db
+.DS_Store

@@ -1,0 +1,632 @@
+# Visual Asset Hub tag vocabulary (mirrors docs/SPEC.md section 3 - keep both in sync).
+# After editing: python -m backend.cli.library retag
+#
+# prompts   English phrases inserted into the CLIP templates below (several per entry are averaged)
+# synonyms  Chinese terms matched in search queries (the entry name itself always matches)
+# coco      YOLO (COCO) labels that map to this category
+
+version = 1
+
+[templates]
+category = ["a photo of {}.", "a product photo of {}.", "a close-up photo of {}."]
+material = ["a photo of an object made of {}.", "a close-up photo of {} texture."]
+style = ["a {} object.", "a photo of a {} item."]
+context = ["a photo of {}.", "a scene of {}."]
+
+[scene]
+# Whole-photo context matching competes against these generic prompts; when they win,
+# no scene context is added (softmax would otherwise force the least-bad context).
+none = ["a photo of an object.", "a product photo.", "a close-up photo.", "a photo of a thing on a table."]
+
+[objectness]
+# CLIP sees the candidate region with everything outside its mask painted gray.
+# 0.40 chosen from tools/objectness_report.py on the 25 test photos (hides ~31% of unlabeled
+# candidates; 0.25-0.45 is mixed, hidden ones stay available via include_hidden).
+threshold = 0.40
+object = [
+  "a photo of a single object on a gray background.",
+  "a product photo of an item.",
+  "a close-up photo of a thing.",
+  "a photo of a toy.",
+  "a photo of food.",
+]
+background = [
+  "a photo of a table surface.",
+  "a photo of a floor.",
+  "a photo of a wall.",
+  "a photo of a tablecloth.",
+  "a blurry background.",
+  "a small fragment of something.",
+  "printed text on a sheet of paper.",
+  "an empty gray image.",
+]
+
+[tagging]
+# Softmax temperature applied to cosine similarities (CLIP's logit scale).
+logit_scale = 100.0
+# Use the YOLO label when its score >= this and its mapped category is in CLIP's top-k.
+yolo_trust_score = 0.5
+yolo_trust_topk = 3
+# ...and CLIP gives that category at least this probability. Without it a very confident
+# CLIP answer can be overridden (Stanley tumbler: CLIP 隨行杯 0.99, YOLO "cup" -> 咖啡杯 0.004).
+yolo_min_prob = 0.10
+# CLIP top-1 category below this probability becomes "其他".
+category_min_prob = 0.15
+# Materials / styles: keep labels with probability >= this (max 2).
+attribute_min_prob = 0.30
+# Whole-photo scene contexts: keep labels with probability >= this (max 2).
+scene_min_prob = 0.35
+# Candidate categories used by the co-occurrence rules need at least this probability
+# (or a YOLO label that CLIP agrees with). Confirmed assets always count. Lower values let
+# misread fragments invent contexts (a round head read as a helmet at 0.65 -> 通勤).
+rule_min_prob = 0.70
+# Colours covering at least this fraction of the opaque pixels (max 2).
+color_min_ratio = 0.25
+
+# --------------------------------------------------------------------------- categories
+
+[[category]]
+name = "甜點"
+group = "餐飲"
+prompts = ["a dessert", "a pudding", "a cake"]
+synonyms = ["布丁", "蛋糕", "點心"]
+coco = ["cake", "donut"]
+
+[[category]]
+name = "麵包"
+group = "餐飲"
+prompts = ["bread", "a pastry", "a bun"]
+synonyms = ["菠蘿麵包", "可頌", "吐司"]
+coco = ["sandwich"]
+
+[[category]]
+name = "披薩"
+group = "餐飲"
+prompts = ["a pizza"]
+synonyms = ["pizza"]
+coco = ["pizza"]
+
+[[category]]
+name = "肉類主餐"
+group = "餐飲"
+prompts = ["a steak", "a meat dish"]
+synonyms = ["牛排", "豬排", "主菜"]
+
+[[category]]
+name = "飯類"
+group = "餐飲"
+prompts = ["a rice bowl", "a donburi"]
+synonyms = ["丼飯", "蓋飯", "便當"]
+
+[[category]]
+name = "蔬果"
+group = "餐飲"
+prompts = ["vegetables", "fruit"]
+synonyms = ["水果", "蔬菜", "沙拉"]
+coco = ["banana", "apple", "orange", "broccoli", "carrot"]
+
+[[category]]
+name = "咖啡杯"
+group = "餐飲"
+prompts = ["a coffee cup", "a mug", "a teacup"]
+synonyms = ["馬克杯", "咖啡", "拿鐵", "茶杯"]
+coco = ["cup"]
+
+[[category]]
+name = "酒瓶"
+group = "餐飲"
+prompts = ["a liquor bottle", "a whisky bottle", "a wine bottle"]
+synonyms = ["威士忌", "紅酒", "酒"]
+coco = ["bottle", "wine glass"]
+
+[[category]]
+name = "罐裝飲料"
+group = "餐飲"
+prompts = ["a beverage can", "a beer can"]
+synonyms = ["啤酒", "汽水", "易開罐"]
+
+[[category]]
+name = "隨行杯"
+group = "餐飲"
+prompts = ["a tumbler", "an insulated bottle"]
+synonyms = ["保溫杯", "水壺", "冰霸杯"]
+
+[[category]]
+name = "碗"
+group = "餐飲"
+prompts = ["a bowl"]
+synonyms = ["碗公"]
+coco = ["bowl"]
+
+[[category]]
+name = "盤子"
+group = "餐飲"
+prompts = ["a plate"]
+synonyms = ["餐盤", "碟子"]
+
+[[category]]
+name = "餐具"
+group = "餐飲"
+prompts = ["a spoon", "a fork", "a knife", "chopsticks"]
+synonyms = ["湯匙", "叉子", "刀子", "筷子"]
+coco = ["spoon", "fork", "knife"]
+
+[[category]]
+name = "筆電"
+group = "3C"
+prompts = ["a laptop", "a tablet"]
+synonyms = ["筆記型電腦", "MacBook", "平板", "電腦"]
+coco = ["laptop"]
+
+[[category]]
+name = "手機"
+group = "3C"
+prompts = ["a smartphone"]
+synonyms = ["iPhone"]
+coco = ["cell phone"]
+
+[[category]]
+name = "手機殼"
+group = "3C"
+prompts = ["a phone case"]
+synonyms = ["保護殼", "手機配件"]
+
+[[category]]
+name = "滑鼠"
+group = "3C"
+prompts = ["a computer mouse"]
+synonyms = ["無線滑鼠"]
+coco = ["mouse"]
+
+[[category]]
+name = "鍵盤"
+group = "3C"
+prompts = ["a keyboard"]
+synonyms = ["機械鍵盤"]
+coco = ["keyboard"]
+
+[[category]]
+name = "螢幕"
+group = "3C"
+prompts = ["a computer monitor"]
+synonyms = ["顯示器"]
+coco = ["tv"]
+
+[[category]]
+name = "滑鼠墊"
+group = "3C"
+prompts = ["a mouse pad"]
+synonyms = ["桌墊"]
+
+[[category]]
+name = "耳機"
+group = "3C"
+prompts = ["headphones", "earbuds"]
+synonyms = ["藍牙耳機"]
+
+[[category]]
+name = "相機"
+group = "3C"
+prompts = ["a camera"]
+synonyms = ["單眼"]
+
+[[category]]
+name = "寵物"
+group = "動物"
+prompts = ["a pet cat", "a pet dog", "a hamster", "a pet rabbit"]
+synonyms = ["貓", "狗", "毛小孩", "倉鼠"]
+coco = ["cat", "dog"]
+
+[[category]]
+name = "野生動物"
+group = "動物"
+prompts = ["a wild animal", "a bird", "a deer"]
+synonyms = ["鳥", "動物園"]
+coco = ["bird", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe"]
+
+[[category]]
+name = "提袋"
+group = "生活"
+prompts = ["a tote bag", "a handbag"]
+synonyms = ["帆布袋", "包包", "手提袋"]
+coco = ["handbag", "backpack"]
+
+[[category]]
+name = "飾品"
+group = "生活"
+prompts = ["a ring", "a hair clip", "a necklace", "earrings", "a bracelet", "a wristwatch"]
+synonyms = ["戒指", "髮夾", "項鍊", "耳環", "手環", "手錶"]
+
+[[category]]
+name = "個人護理用品"
+group = "生活"
+prompts = ["nail clippers", "a comb", "a razor", "a toothbrush", "a hair dryer"]
+synonyms = ["指甲剪", "梳子", "刮鬍刀", "牙刷", "吹風機"]
+coco = ["toothbrush", "hair drier"]
+
+[[category]]
+name = "安全帽"
+group = "生活"
+prompts = ["a motorcycle helmet"]
+synonyms = ["全罩", "頭盔"]
+
+[[category]]
+name = "鑰匙"
+group = "生活"
+prompts = ["keys"]
+synonyms = ["鑰匙圈"]
+
+[[category]]
+name = "公仔"
+group = "生活"
+prompts = ["a figurine", "a toy figure"]
+synonyms = ["玩偶", "模型", "咖波"]
+coco = ["teddy bear"]
+
+[[category]]
+name = "燈具"
+group = "生活"
+prompts = ["a lamp", "a night light"]
+synonyms = ["夜燈", "檯燈"]
+
+[[category]]
+name = "包裝盒"
+group = "生活"
+prompts = ["a product box", "packaging"]
+synonyms = ["紙盒", "外盒", "禮盒"]
+
+[[category]]
+name = "藥品"
+group = "生活"
+prompts = ["a medicine bottle", "a medicine box"]
+synonyms = ["感冒藥", "維他命", "保健食品"]
+
+[[category]]
+name = "書本"
+group = "生活"
+prompts = ["a book", "a notebook"]
+synonyms = ["筆記本", "雜誌"]
+coco = ["book"]
+
+[[category]]
+name = "文具"
+group = "生活"
+prompts = ["a pen", "stationery"]
+synonyms = ["筆", "便利貼"]
+coco = ["scissors"]
+
+[[category]]
+name = "植物"
+group = "生活"
+prompts = ["a potted plant", "flowers"]
+synonyms = ["盆栽", "花"]
+coco = ["potted plant", "vase"]
+
+[[category]]
+name = "雕像"
+group = "生活"
+prompts = ["a statue", "a sculpture"]
+synonyms = ["雕塑", "石像"]
+
+[[category]]
+name = "陶瓷器"
+group = "生活"
+prompts = ["a ceramic pot", "a ceramic figure"]
+synonyms = ["陶鍋", "瓷器", "擺飾"]
+
+[[category]]
+name = "時鐘"
+group = "生活"
+prompts = ["a clock"]
+synonyms = ["掛鐘"]
+coco = ["clock"]
+
+[[category]]
+name = "眼鏡"
+group = "生活"
+prompts = ["glasses"]
+synonyms = ["墨鏡"]
+
+[[category]]
+name = "鞋子"
+group = "生活"
+prompts = ["shoes"]
+synonyms = ["球鞋"]
+
+[[category]]
+name = "服飾"
+group = "生活"
+prompts = ["clothing"]
+synonyms = ["衣服", "T恤"]
+coco = ["tie"]
+
+[[category]]
+name = "人物"
+group = "其他"
+prompts = ["a person", "a human hand"]
+synonyms = ["手", "人"]
+coco = ["person"]
+exclude_from_search = true
+
+[[category]]
+name = "其他"
+group = "其他"
+prompts = ["an object"]
+synonyms = []
+fallback = true
+
+# --------------------------------------------------------------------------- attributes
+
+# Colours are measured from pixels (key = internal colour id), not by CLIP.
+[[color]]
+key = "black"
+name = "黑"
+synonyms = ["黑色"]
+
+[[color]]
+key = "white"
+name = "白"
+synonyms = ["白色"]
+
+[[color]]
+key = "gray"
+name = "灰"
+synonyms = ["灰色"]
+
+[[color]]
+key = "red"
+name = "紅"
+synonyms = ["紅色"]
+
+[[color]]
+key = "orange"
+name = "橙"
+synonyms = ["橘色", "橙色"]
+
+[[color]]
+key = "yellow"
+name = "黃"
+synonyms = ["黃色"]
+
+[[color]]
+key = "green"
+name = "綠"
+synonyms = ["綠色"]
+
+[[color]]
+key = "blue"
+name = "藍"
+synonyms = ["藍色"]
+
+[[color]]
+key = "purple"
+name = "紫"
+synonyms = ["紫色"]
+
+[[color]]
+key = "pink"
+name = "粉紅"
+synonyms = ["粉紅色", "粉色"]
+
+[[color]]
+key = "brown"
+name = "棕"
+synonyms = ["棕色", "咖啡色"]
+
+[[color]]
+key = "beige"
+name = "米色"
+synonyms = ["米白"]
+
+[[material]]
+name = "塑膠"
+prompts = ["plastic"]
+synonyms = ["塑料"]
+
+[[material]]
+name = "金屬"
+prompts = ["metal"]
+synonyms = ["不鏽鋼", "鐵"]
+
+[[material]]
+name = "玻璃"
+prompts = ["glass"]
+synonyms = []
+
+[[material]]
+name = "陶瓷"
+prompts = ["ceramic", "porcelain"]
+synonyms = ["瓷"]
+
+[[material]]
+name = "木頭"
+prompts = ["wood"]
+synonyms = ["木質", "木製"]
+
+[[material]]
+name = "布料"
+prompts = ["fabric", "denim"]
+synonyms = ["帆布", "丹寧", "布"]
+
+[[material]]
+name = "皮革"
+prompts = ["leather"]
+synonyms = ["皮"]
+
+[[material]]
+name = "紙"
+prompts = ["paper", "cardboard"]
+synonyms = ["紙製", "紙板"]
+
+[[material]]
+name = "透明"
+prompts = ["transparent plastic"]
+synonyms = ["透明的"]
+
+[[style]]
+name = "可愛"
+prompts = ["cute cartoon"]
+synonyms = ["卡通", "萌"]
+
+[[style]]
+name = "簡約"
+prompts = ["minimalist"]
+synonyms = ["極簡", "簡單"]
+
+[[style]]
+name = "復古"
+prompts = ["vintage"]
+synonyms = ["懷舊", "古典"]
+
+[[style]]
+name = "奢華"
+prompts = ["luxury"]
+synonyms = ["高級", "精品"]
+
+[[style]]
+name = "繽紛"
+prompts = ["colorful"]
+synonyms = ["多彩", "彩色"]
+
+# ----------------------------------------------------------------------------- contexts
+
+[[context]]
+name = "遠距工作"
+prompts = ["working remotely on a laptop"]
+synonyms = ["在家工作", "WFH", "咖啡廳工作", "工作"]
+
+[[context]]
+name = "咖啡廳"
+prompts = ["a cafe table"]
+synonyms = ["咖啡店", "下午茶店"]
+
+[[context]]
+name = "辦公桌面"
+prompts = ["an office desk setup"]
+synonyms = ["桌面", "工作桌", "電腦周邊", "辦公桌"]
+
+[[context]]
+name = "用餐"
+prompts = ["a meal at a restaurant"]
+synonyms = ["吃飯", "晚餐", "午餐", "餐廳"]
+
+[[context]]
+name = "甜點時光"
+prompts = ["afternoon tea with desserts"]
+synonyms = ["下午茶"]
+
+[[context]]
+name = "小酌"
+prompts = ["drinks at a bar"]
+synonyms = ["喝酒", "下班", "微醺", "酒吧"]
+
+[[context]]
+name = "居家"
+prompts = ["at home"]
+synonyms = ["家裡", "房間"]
+
+[[context]]
+name = "戶外"
+prompts = ["outdoors"]
+synonyms = ["街上"]
+
+[[context]]
+name = "通勤"
+prompts = ["commuting by scooter"]
+synonyms = ["騎車", "機車", "上班路上"]
+
+[[context]]
+name = "購物"
+prompts = ["a retail store display"]
+synonyms = ["逛街", "商店", "展示櫃"]
+
+[[context]]
+name = "開箱"
+prompts = ["unboxing a new product"]
+synonyms = ["新品", "拆箱"]
+# CLIP reads almost any product shot as "unboxing" (0.9+ on a toy, a phone case):
+# only the 包裝盒 + product rule may assign it.
+scene = false
+
+[[context]]
+name = "收藏"
+prompts = ["collectible toys on display"]
+synonyms = ["收藏品", "公仔展示"]
+
+[[context]]
+name = "保健"
+prompts = ["taking medicine"]
+synonyms = ["生病", "感冒", "健康"]
+
+[[context]]
+name = "旅行"
+prompts = ["sightseeing at a museum or landmark"]
+synonyms = ["博物館", "展覽", "景點", "出遊"]
+
+# -------------------------------------------------------------------------------- rules
+# A rule fires when the photo contains every category in `all` and at least `min_any`
+# (default 1) of the categories in `any`.
+
+[[rule]]
+all = ["筆電", "咖啡杯"]
+contexts = ["遠距工作", "咖啡廳"]
+
+[[rule]]
+all = ["筆電", "滑鼠"]
+contexts = ["遠距工作"]
+
+[[rule]]
+all = ["咖啡杯"]
+any = ["甜點", "麵包"]
+contexts = ["咖啡廳", "甜點時光"]
+
+[[rule]]
+any = ["滑鼠", "鍵盤", "螢幕", "滑鼠墊"]
+min_any = 2
+contexts = ["辦公桌面"]
+
+[[rule]]
+all = ["甜點"]
+contexts = ["甜點時光"]
+
+[[rule]]
+any = ["肉類主餐", "披薩", "飯類"]
+contexts = ["用餐"]
+
+[[rule]]
+all = ["餐具"]
+any = ["盤子", "碗"]
+contexts = ["用餐"]
+
+[[rule]]
+any = ["酒瓶", "罐裝飲料"]
+contexts = ["小酌"]
+
+[[rule]]
+all = ["包裝盒"]
+any = ["滑鼠", "手機", "耳機", "隨行杯", "公仔"]
+contexts = ["開箱"]
+
+[[rule]]
+all = ["公仔"]
+contexts = ["收藏"]
+
+[[rule]]
+all = ["安全帽"]
+contexts = ["通勤"]
+
+[[rule]]
+all = ["藥品"]
+contexts = ["保健"]
+
+[[rule]]
+all = ["雕像"]
+contexts = ["旅行"]
+
+[[rule]]
+all = ["寵物"]
+contexts = ["居家"]
+
+[[rule]]
+all = ["野生動物"]
+contexts = ["戶外", "旅行"]

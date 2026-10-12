@@ -1,0 +1,12 @@
+# Runtime (conda env: vah, Python 3.11). No torch / ultralytics here.
+# CPU for now; for GPU later swap `onnxruntime` for `onnxruntime-gpu[cuda,cudnn]` (do not install both).
+onnxruntime>=1.20
+opencv-contrib-python>=4.9  # contrib for ximgproc.guidedFilter; do not also install opencv-python
+numpy>=1.26
+sqlite-vec>=0.1.6           # vec0 metadata-column filtering
+tokenizers>=0.20            # CLIP / multilingual tokenizers without torch
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart            # FastAPI file uploads
+pytest>=8
+httpx                       # FastAPI TestClient

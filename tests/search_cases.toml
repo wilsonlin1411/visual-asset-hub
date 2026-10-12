@@ -1,0 +1,40 @@
+# Search acceptance cases (docs/SPEC.md section 6). `photos` are file names in tests/images,
+# matched to the library by the name each photo was imported under. Build the demo library first:
+#   python -m backend.cli.library ingest tests/images
+#   python tools/seed_library.py
+# A query passes when one of its top-5 hits comes from one of `photos` (and, if `categories`
+# is given, carries one of those categories). Target: >= 80% of queries pass (hit@5).
+
+[[case]]
+query = "辦公桌上的電腦周邊"
+photos = ["PXL_20260617_055925417.jpg", "PXL_20260829_193653800.jpg"]
+categories = ["滑鼠", "鍵盤", "滑鼠墊"]
+
+[[case]]
+query = "適合下班小酌的東西"
+photos = ["PXL_20260829_193653800.jpg"]
+categories = ["酒瓶", "罐裝飲料"]
+
+[[case]]
+query = "可愛的公仔"
+photos = ["PXL_20260601_143321659.jpg", "PXL_20260705_065356505.jpg"]
+
+[[case]]
+query = "甜點"
+photos = ["pudding.jpg", "PXL_20260516_122439108.jpg"]
+
+[[case]]
+query = "晚餐的主菜"
+photos = ["PXL_20260819_104454281.jpg"]
+
+[[case]]
+query = "藍色的東西"
+photos = ["PXL_20260705_065356505.jpg", "PXL_20260731_171541198.jpg"]
+
+[[case]]
+query = "帆布提袋"
+photos = ["PXL_20260630_122217844.jpg"]
+
+[[case]]
+query = "騎車要用的"
+photos = ["PXL_20260731_171541198.jpg"]

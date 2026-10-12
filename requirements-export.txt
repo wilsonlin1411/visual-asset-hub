@@ -1,0 +1,8 @@
+# Export / verification only (conda env: vah-export, Python 3.11).
+# torch CPU build: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+ultralytics
+onnx
+onnxslim
+onnxruntime
+transformers            # CLIP export (tools/export_clip.py)
+sentence-transformers   # multilingual CLIP text encoder export
