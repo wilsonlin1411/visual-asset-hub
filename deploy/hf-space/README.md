@@ -18,6 +18,22 @@ short_description: 照片拆成去背素材、中文搜尋、畫布匯出（線�
 
 **原始碼、安裝說明與授權：https://github.com/wilsonlin1411/visual-asset-hub**
 
+## 參賽資訊
+
+| 項目 | 內容 |
+|---|---|
+| 競賽 | ASUS UGen AI League 2026 · Innovation Hackathon · Stage I Proposal |
+| 組別 | Battlefield Lightning · Lightweight Computing（輕量運算組） |
+| 目標硬體 | ASUS UGen300 USB AI Accelerator（Hailo-10H） |
+| Stage I | Simulated and validated on a laptop（CPU only） |
+
+## 團隊成員
+
+| 成員 | GitHub |
+|---|---|
+| 林源隆（Wilson Lin） | [@wilsonlin1411](https://github.com/wilsonlin1411) |
+| 禤蔚灝（Asa Huen） | [@Asahuen](https://github.com/Asahuen) |
+
 ## 這個 Demo 的運作方式
 
 - 每位訪客都有**自己的素材庫**，一開始已放入 10 張示範照片。你上傳的照片、建立的素材與設計只有你看得到。
