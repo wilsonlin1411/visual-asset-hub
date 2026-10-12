@@ -22,7 +22,7 @@
 | 目標硬體 | ASUS UGen300 USB AI Accelerator（Hailo-10H） |
 | Stage I | Simulated and validated on a laptop（CPU only） |
 
-### 團隊成員
+## 團隊成員
 
 | 成員 | GitHub |
 |---|---|
